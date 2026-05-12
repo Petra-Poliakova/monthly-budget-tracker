@@ -19,6 +19,7 @@ const router = createBrowserRouter(
     {
       path: "/",
       Component: RootLayout,
+      HydrateFallback: () => <div>Loading...</div>,
       children: [
         { index: true, 
           lazy: async () => { const module = await import("@/pages/Home"); return { Component: module.Home }; },
