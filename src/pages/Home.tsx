@@ -1,10 +1,10 @@
-import {useState} from "react";
-
 import {BudgetInputs} from "@/components/BudgetInputs.tsx";
 import {HeroIntro} from "@/components/HeroIntro.tsx";
 import {SummaryCard, type TSummaryCardProps} from "@/components/SummaryCard";
 
 import {formatCurrency} from '@/utils/formatCurrency'
+
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 import {Container, Grid, } from "@mui/material";
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
@@ -14,19 +14,27 @@ import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 
 import "./Home.scss";
 
-export const Home = () => {
-    const [income, setIncome] = useState<number | null>(null);
-    const [savingsGoal, setSavingsGoal] = useState<number | null>(null);
+type TBudgetData = {
+    monthlyIncome: number | null;
+    savingsGoal: number | null;
+}
 
-    const monthlyIncome = income ?? 2200;
+const defaultBudgetData: TBudgetData = {
+    monthlyIncome: null,
+    savingsGoal: null,
+};
+
+export const Home = () => {
+    const [budgetData, setBudgetData] = useLocalStorage<TBudgetData>('budget-tracker', defaultBudgetData);
+
     const monthlyExpenses = 1425;
-    const balance = monthlyIncome - monthlyExpenses;
-    const afterSavingsGoal = balance - (savingsGoal ?? 300);
+    const balance = budgetData.monthlyIncome - monthlyExpenses;
+    const afterSavingsGoal = balance - (budgetData.savingsGoal ?? 300);
 
     const kpiData : TSummaryCardProps[] = [
         {
             title: "Monthly Income",
-            value: formatCurrency(monthlyIncome),
+            value: formatCurrency(budgetData.monthlyIncome),
             description: "Total household income",
             icon: <BusinessCenterIcon sx={{color:'var(--color-primary)'}}/>
         },
@@ -50,6 +58,21 @@ export const Home = () => {
         },
     ]
 
+    const handleMonthlyIncome = (monthlyIncome: number)=> {
+        setBudgetData((currentData) => ({
+            ...currentData,
+            monthlyIncome,
+        }));
+    }
+
+    const handleSavingsGoal = (savingsGoal: number) => {
+        setBudgetData((currentData) => ({
+            ...currentData,
+            savingsGoal,
+        }));
+    }
+
+
     return (
         <Container maxWidth="xl">
             <Grid container spacing={3}>
@@ -59,10 +82,10 @@ export const Home = () => {
 
                 <Grid size={{xs: 12, md: 6}}>
                     <BudgetInputs
-                        income={income}
-                        savingsGoal={savingsGoal}
-                        onIncomeChange={setIncome}
-                        onSavingsGoalChange={setSavingsGoal}
+                        income={budgetData.monthlyIncome}
+                        savingsGoal={budgetData.savingsGoal}
+                        onIncomeChange={handleMonthlyIncome}
+                        onSavingsGoalChange={handleSavingsGoal}
                     />
                 </Grid>
             </Grid>
