@@ -1,6 +1,8 @@
+import  { useState, type ReactNode } from "react";
 import {BudgetInputs} from "@/components/BudgetInputs.tsx";
 import {HeroIntro} from "@/components/HeroIntro.tsx";
 import {SummaryCard, type TSummaryCardProps} from "@/components/SummaryCard";
+import {CategoryDropDown} from "@/components/CategoryDropDown";
 
 import {formatCurrency} from '@/utils/formatCurrency'
 
@@ -14,18 +16,31 @@ import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 
 import "./Home.scss";
 
+type TExpenses ={
+    id: number | null,
+    category: string | null,
+    icon: ReactNode | null,
+    name: string | null,
+    amount: number | null,
+}
+
 type TBudgetData = {
     monthlyIncome: number | null;
     savingsGoal: number | null;
+    expenses: TExpenses [];
 }
 
 const defaultBudgetData: TBudgetData = {
     monthlyIncome: null,
     savingsGoal: null,
+    expenses: [{id: null, category: null, icon: null, name: null, amount: null}],
 };
 
 export const Home = () => {
     const [budgetData, setBudgetData] = useLocalStorage<TBudgetData>('budget-tracker', defaultBudgetData);
+    const [formExpenses, setFormExpenses] = useState<TExpenses>({id: null, category: null, icon: null, name: null, amount: null})
+
+    console.log('formExpenses',formExpenses);
 
     const monthlyExpenses = 1425;
     const balance = budgetData.monthlyIncome - monthlyExpenses;
@@ -72,6 +87,14 @@ export const Home = () => {
         }));
     }
 
+    const handleCategoryChange = (category: string) => {
+        setFormExpenses((currentData) => ({
+            ...currentData, category
+        }));
+    };
+
+    //handleAddFormExpenses
+
 
     return (
         <Container maxWidth="xl">
@@ -95,6 +118,10 @@ export const Home = () => {
                         <SummaryCard title={i.title} value={i.value} description={i.description} icon={i.icon}/>
                     </Grid>
                 ))}
+            </Grid>
+
+            <Grid>
+                <CategoryDropDown categoryValue={formExpenses.category ?? ""} onCategoryChange={handleCategoryChange}/>
             </Grid>
         </Container>
     );
