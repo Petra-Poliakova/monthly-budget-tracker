@@ -8,11 +8,13 @@ import {formatCurrency} from '@/utils/formatCurrency'
 
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
-import {Container, Grid, } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import {Container, Grid, Paper, Typography, Table, TableContainer, TableBody, TableCell, tableCellClasses, TableHead, TableRow} from "@mui/material";
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 import "./Home.scss";
 
@@ -31,10 +33,17 @@ type TBudgetData = {
 }
 
 const defaultBudgetData: TBudgetData = {
-    monthlyIncome: null,
-    savingsGoal: null,
-    expenses: [{id: null, category: null, icon: null, name: null, amount: null}],
+    monthlyIncome: 0,
+    savingsGoal: 0,
+    //expenses: [{id: null, category: null, icon: null, name: null, amount: null}],
+    expenses: [],
 };
+
+const StyledTableCell = styled(TableCell)(() => ({
+    [`&.${tableCellClasses.head}`]: {
+        backgroundColor: 'var(--color-table-head-bg)',
+    },
+}));
 
 export const Home = () => {
     const [budgetData, setBudgetData] = useLocalStorage<TBudgetData>('budget-tracker', defaultBudgetData);
@@ -42,9 +51,14 @@ export const Home = () => {
 
     console.log('formExpenses',formExpenses);
 
-    const monthlyExpenses = 1425;
-    const balance = budgetData.monthlyIncome - monthlyExpenses;
-    const afterSavingsGoal = balance - (budgetData.savingsGoal ?? 300);
+    const monthlyIncome = budgetData.monthlyIncome ?? 0;
+    const savingsGoal = budgetData.savingsGoal ?? 0;
+
+    const monthlyExpenses = budgetData.expenses.reduce((total, expense) => {
+        return total + (expense.amount ?? 0);
+    }, 0);
+    const balance = monthlyIncome - monthlyExpenses;
+    const afterSavingsGoal = balance - savingsGoal;
 
     const kpiData : TSummaryCardProps[] = [
         {
@@ -112,16 +126,64 @@ export const Home = () => {
                     />
                 </Grid>
             </Grid>
-            <Grid container columnSpacing={3} rowSpacing={3} sx={{mt: 3,}}>
+            <Grid container spacing={3} sx={{mt: 3, alignItems: 'stretch' }} >
                 {kpiData.map((i) => (
-                    <Grid key={i.title} size={{xs: 12, md: 6, lg: 3}} >
+                    <Grid key={i.title} size={{xs: 12, md: 6, lg: 3}} sx={{ display: 'flex', minWidth: 0 }} >
                         <SummaryCard title={i.title} value={i.value} description={i.description} icon={i.icon}/>
                     </Grid>
                 ))}
             </Grid>
 
-            <Grid>
-                <CategoryDropDown categoryValue={formExpenses.category ?? ""} onCategoryChange={handleCategoryChange}/>
+            <Grid container spacing={3} sx={{mt: 3, alignItems: 'stretch' }} >
+                <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', minWidth: 0 }}>
+                    <Paper sx={{padding:2.5, borderRadius: 3, boxShadow: "var(--shadow)", height: "100%", width: "100%", minWidth: 0, boxSizing: "border-box"}}>
+                        <Typography variant="h6" sx={{color:'var(--color-text-main)', fontWeight: 600}}>List of expenses</Typography>
+                        <Typography variant="body2" sx={{color: 'var(--color-text-secondary)', mb:2}}>
+                            Manage and track all monthly household items.
+                        </Typography>
+                        <TableContainer sx={{ border:'1px solid var(--color-text-secondary)', borderRadius: 3, overflowX: 'auto', width:'100%'}}>
+                            <Table sx={{ minWidth: 350 }} aria-label="expenses table">
+                                <TableHead >
+                                    <TableRow>
+                                        <StyledTableCell>Category</StyledTableCell>
+                                        <StyledTableCell>Item</StyledTableCell>
+                                        <StyledTableCell>Amount</StyledTableCell>
+                                        <StyledTableCell>Action</StyledTableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {budgetData.expenses.map((expense)=> (
+                                        <TableRow key={expense.id}>
+                                            <TableCell>{expense.category}</TableCell>
+                                            <TableCell>{expense.name}</TableCell>
+                                            <TableCell>{expense.amount}</TableCell>
+                                            <TableCell><DeleteOutlinedIcon/></TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex' }}>
+                    <Paper sx={{padding:2.5, borderRadius: 3, boxShadow: "var(--shadow)", height: "100%", width: "100%", minWidth: 0, boxSizing: "border-box"}}>
+                        <Typography variant="h6" sx={{color:'var(--color-text-main)', fontWeight: 600}}>Add expense</Typography>
+                        <Typography variant="body2" sx={{color: 'var(--color-text-secondary)', mb:2}}>
+                            A new item is immediately included in the overview.
+                        </Typography>
+                        <CategoryDropDown categoryValue={formExpenses.category ?? ""} onCategoryChange={handleCategoryChange}/>
+                    </Paper>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex' }}>
+                    <Paper sx={{padding:2.5, borderRadius: 3, boxShadow: "var(--shadow)", height: "100%", width: "100%", minWidth: 0, boxSizing: "border-box"}}>
+                        <Typography variant="h6" sx={{color:'var(--color-text-main)', fontWeight: 600}}>Summary</Typography>
+                        <Typography variant="body2" sx={{color: 'var(--color-text-secondary)', mb:2}}>
+                            The most important data for the current month.
+                        </Typography>
+                    </Paper>
+                </Grid>
             </Grid>
         </Container>
     );

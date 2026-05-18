@@ -10,7 +10,7 @@ export type TSummaryCardProps ={
 
 export const SummaryCard = ({ title, value, description, icon } : TSummaryCardProps) => {
     return (
-        <Paper sx={{padding:2.5, borderRadius: 3, boxShadow: "var(--shadow)",}}>
+        <Paper sx={{padding:2.5, borderRadius: 3, boxShadow: "var(--shadow)", height: "100%", width: "100%", minWidth: 0, boxSizing: "border-box"}}>
             <Box sx={{display: 'flex', justifyContent: 'space-between', gap: 2,}}>
                 <Stack spacing={0.75} >
                     <Typography variant="body2" sx={{color:'var(--color-text-secondary)', fontWeight: 500}}>{title}</Typography>

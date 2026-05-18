@@ -7,8 +7,7 @@ export const HeroIntro = () => {
         <Stack spacing={1}>
             <Chip
                 variant="outlined"
-                avatar={<Avatar sx={{backgroundColor: 'inherit'}}><SavingsOutlinedIcon fontSize="small"
-                                                                             sx={{color: 'var(--color-primary)'}}/></Avatar>}
+                avatar={<Avatar sx={{backgroundColor: 'inherit'}}><SavingsOutlinedIcon fontSize="small" sx={{color: 'var(--color-primary)'}}/></Avatar>}
                 label="Household budget calculator"
                 sx={{alignSelf: 'flex-start', width: 'fit-content', color: 'var(--color-text-main)'}}
             />
